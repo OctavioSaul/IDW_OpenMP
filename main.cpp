@@ -9,7 +9,7 @@ int main() {
     metodos objMeth;
 //------------------------------------------------------------------------variables
     int rows, cols;//tamaño matriz
-    int row,col;//iteradores matriz
+    //int row,col;//iteradores matriz
     int cell_null;//valor nulo mapa
     int scale;//escala del mapa
     int num_com;//numero de localidades en el mapa
@@ -42,13 +42,14 @@ int main() {
     objrast.leer_localidades(localidad_matrix, rows, cols, localidades, cell_null, num_com);
     //valores iniciales
     IDW_matrix = objMeth.reset_Matrix(rows, cols, 0); //llena la matriz inicial del valor indicado
-    float *CD_matrix = new float[rows*cols];
 
     //-------------------------------------------------------------------------------------------------------inicia calculo modelos
     biomass = biomass_requerida.begin();
     int start =int(biomass->first);
     biomass = biomass_requerida.end();
     int end =int(biomass->first);
+    //omp_set_num_threads(10);
+    #pragma omp parallel for default(shared) private(ubicacion,biomass,array)
     for(i=start;i<=end;i++) {
         if (biomass_requerida.find(i) != biomass_requerida.end()) {//existe la comunidad con ese numero?
             biomass = biomass_requerida.find(i);
@@ -61,11 +62,24 @@ int main() {
                     array.val_fricc = 0;
                     array.key=0;
                     cont++;//localidades calculadas
+                    float *CD_matrix = new float[rows*cols];
                     CD_matrix=objMeth.cost_distance(fric_matrix, rows, cols, array, CD_matrix);
                     //objrast.matrix_to_tiff(CD_matrix, rows, cols,cont,"CD_");
                     cout<<"costo distancia "<<i<< " calculado"<<endl;
-                    objMeth.IDW_test(biomass->second, CD_matrix, IDW_matrix, rows, cols, exp, cell_null);
-
+                    //IDW_matrix_tmp=objMeth.IDW_test(biomass->second, CD_matrix, IDW_matrix_tmp, rows, cols, exp, cell_null);
+                    //---------------IDW
+                    int row,col;
+                    for(row = 0; row < rows; row++) {
+                        for (col = 0; col < cols; col++) {
+                            if (CD_matrix[(cols * row) + col] <= 0) {
+                                IDW_matrix[(cols * row) + col] = cell_null;
+                            } else {
+                                IDW_matrix[(cols * row) + col] +=
+                                        biomass->second / pow(CD_matrix[(cols * row) + col], exp);
+                            }
+                        }
+                    }
+                    //------fin IDW
                 }
             }
         }

@@ -19,7 +19,9 @@
 #include <string>
 #include <cstdio>
 #include <vector>
-
+//.................................OpenMP
+#include <omp.h>
+#include <limits>
 //---------------------------------mapas
 #include <utility>
 #include <map>
