@@ -36,9 +36,9 @@ float* Raster::read_tif_matrix(std::string file,int &rows, int &cols, int &scale
             location = (cols * (row)) + col;
             matrix[(cols*row)+col] = *(pBuf+location);
         }
-    printf("Columnas: %d\n", cols);
+    /*printf("Columnas: %d\n", cols);
     printf("Renglones: %d\n", rows);
-    printf("valor nulo: %d\n", cell_null);
+    printf("valor nulo: %d\n", cell_null);*/
     return matrix;
 }
 //-------------------------------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ int Raster::contar_comunidades(float *mapa_local, int rows, int cols,int cell_nu
                 count++;
             }
         }
-    printf("Total de comunidades es %d\n",count);
+    //printf("Total de comunidades es %d\n",count);
     return count;
 }
 
@@ -116,7 +116,7 @@ void Raster::matrix_to_tiff(float *output_raster, int rows, int cols, int count,
     GDALDriver *poDriver;
     OGRSpatialReference oSRS;
     string fileName = name + to_string(count) + ".tif";
-    cout << fileName << endl;
+    //cout << fileName << endl;
     poDriver = GetGDALDriverManager()->GetDriverByName("Gtiff");
     poDstDS = poDriver->Create( fileName.c_str(), cols, rows, 1, GDT_Float32, NULL);
 
